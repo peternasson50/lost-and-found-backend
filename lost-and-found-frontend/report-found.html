@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Report Found Item - Lost & Found</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="report-lost.html">Report Lost Item</a>
+    <a href="report-found.html">Report Found Item</a>
+    <a href="browse-found.html">Browse Found Items</a>
+    <a href="my-reports.html">My Reports</a>
+    <a href="my-claims.html">My Claims</a>
+    <a href="notifications.html">Notifications</a>
+    <a href="#" onclick="logout()">Logout</a>
+</nav>
+
+<div class="container">
+    <h1>Report a Found Item</h1>
+    <p style="margin-bottom: 15px; color: #555;">
+        The details below (IMEI, serial number, special marks) are kept private and only shown to admins
+        when verifying an ownership claim — they will never be shown publicly.
+    </p>
+
+    <label for="item-name">Item Name</label>
+    <input type="text" id="item-name" placeholder="e.g. Backpack">
+
+    <label for="category">Category</label>
+    <input type="text" id="category" placeholder="e.g. Bag, Electronics, Keys">
+
+    <label for="location-found">Where was it found?</label>
+    <input type="text" id="location-found" placeholder="e.g. Library 2nd floor">
+
+    <label for="date-found">Date found</label>
+    <input type="date" id="date-found">
+
+    <label for="description">Public description</label>
+    <textarea id="description" rows="3" placeholder="General description anyone can see..."></textarea>
+
+    <hr style="margin: 20px 0;">
+    <h2 style="font-size: 16px;">Private verification details</h2>
+
+    <label for="imei">IMEI (if applicable)</label>
+    <input type="text" id="imei" placeholder="Leave blank if not applicable">
+
+    <label for="serial-number">Serial Number</label>
+    <input type="text" id="serial-number" placeholder="e.g. SN-2938471">
+
+    <label for="special-marks">Special Marks</label>
+    <textarea id="special-marks" rows="2" placeholder="e.g. small tear, sticker, scratch..."></textarea>
+
+    <button onclick="submitFoundItem()">Submit Report</button>
+
+    <p id="message"></p>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+    requireLogin();
+
+    async function submitFoundItem() {
+        const messageEl = document.getElementById("message");
+        messageEl.textContent = "";
+        messageEl.className = "";
+
+        const payload = {
+            itemName: document.getElementById("item-name").value,
+            category: document.getElementById("category").value,
+            locationFound: document.getElementById("location-found").value,
+            dateFound: document.getElementById("date-found").value,
+            description: document.getElementById("description").value,
+            imei: document.getElementById("imei").value || null,
+            serialNumber: document.getElementById("serial-number").value || null,
+            specialMarks: document.getElementById("special-marks").value || null
+        };
+
+        try {
+            await apiRequest("/found-items", "POST", payload);
+            messageEl.textContent = "Found item reported successfully! Thank you for helping.";
+            messageEl.className = "success";
+
+            document.getElementById("item-name").value = "";
+            document.getElementById("category").value = "";
+            document.getElementById("location-found").value = "";
+            document.getElementById("date-found").value = "";
+            document.getElementById("description").value = "";
+            document.getElementById("imei").value = "";
+            document.getElementById("serial-number").value = "";
+            document.getElementById("special-marks").value = "";
+        } catch (err) {
+            messageEl.textContent = "Error: " + err.message;
+            messageEl.className = "error";
+        }
+    }
+</script>
+</body>
+</html>

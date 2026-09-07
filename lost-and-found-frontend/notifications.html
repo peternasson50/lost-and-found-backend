@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Notifications - Lost & Found</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="report-lost.html">Report Lost Item</a>
+    <a href="report-found.html">Report Found Item</a>
+    <a href="browse-found.html">Browse Found Items</a>
+    <a href="my-reports.html">My Reports</a>
+    <a href="my-claims.html">My Claims</a>
+    <a href="notifications.html">Notifications</a>
+    <a href="#" onclick="logout()">Logout</a>
+</nav>
+
+<div class="container">
+    <h1>Notifications</h1>
+    <div id="notifications-list">Loading...</div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+    requireLogin();
+
+    async function loadNotifications() {
+        const listEl = document.getElementById("notifications-list");
+
+        try {
+            const notifications = await apiRequest("/notifications", "GET");
+
+            if (notifications.length === 0) {
+                listEl.innerHTML = "<p>No notifications yet.</p>";
+                return;
+            }
+
+            listEl.innerHTML = notifications.map(n => `
+                    <div class="card" style="${n.isRead ? 'opacity: 0.6;' : 'border-left: 4px solid #2c3e50;'}">
+                        <p>${n.message}</p>
+                        <p style="font-size: 12px; color: #888;">${new Date(n.createdAt).toLocaleString()}</p>
+                        ${!n.isRead ? `<button onclick="markRead(${n.id})">Mark as read</button>` : ""}
+                    </div>
+                `).join("");
+        } catch (err) {
+            listEl.innerHTML = "<p class='error'>Error loading notifications: " + err.message + "</p>";
+        }
+    }
+
+    async function markRead(id) {
+        try {
+            await apiRequest(`/notifications/${id}/read`, "PUT");
+            loadNotifications();
+        } catch (err) {
+            alert("Error: " + err.message);
+        }
+    }
+
+    loadNotifications();
+</script>
+</body>
+</html>

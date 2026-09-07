@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Claims - Lost & Found</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="report-lost.html">Report Lost Item</a>
+    <a href="report-found.html">Report Found Item</a>
+    <a href="browse-found.html">Browse Found Items</a>
+    <a href="my-reports.html">My Reports</a>
+    <a href="my-claims.html">My Claims</a>
+    <a href="notifications.html">Notifications</a>
+    <a href="#" onclick="logout()">Logout</a>
+</nav>
+
+<div class="container">
+    <h1>My Claims</h1>
+    <div id="claims-list">Loading...</div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+    requireLogin();
+
+    async function loadMyClaims() {
+        const listEl = document.getElementById("claims-list");
+
+        try {
+            const claims = await apiRequest("/claims/mine", "GET");
+
+            if (claims.length === 0) {
+                listEl.innerHTML = "<p>You haven't submitted any claims yet.</p>";
+                return;
+            }
+
+            listEl.innerHTML = claims.map(claim => `
+                    <div class="card">
+                        <h3>${claim.itemName}</h3>
+                        <p><strong>Your proof:</strong> ${claim.proofAnswers}</p>
+                        <p>Status: <span class="status-${claim.status.toLowerCase()}">${claim.status}</span></p>
+                        <p style="font-size: 12px; color: #888;">Submitted: ${claim.createdAt ? new Date(claim.createdAt).toLocaleString() : "N/A"}</p>
+                    </div>
+                `).join("");
+        } catch (err) {
+            listEl.innerHTML = "<p class='error'>Error loading claims: " + err.message + "</p>";
+        }
+    }
+
+    loadMyClaims();
+</script>
+</body>
+</html>

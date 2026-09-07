@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Reports - Lost & Found</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="report-lost.html">Report Lost Item</a>
+    <a href="report-found.html">Report Found Item</a>
+    <a href="browse-found.html">Browse Found Items</a>
+    <a href="my-reports.html">My Reports</a>
+    <a href="my-claims.html">My Claims</a>
+    <a href="notifications.html">Notifications</a>
+    <a href="#" onclick="logout()">Logout</a>
+</nav>
+
+<div class="container">
+    <h1>My Lost Item Reports</h1>
+    <div id="reports-list">Loading...</div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+    requireLogin();
+
+    async function loadMyReports() {
+        const listEl = document.getElementById("reports-list");
+
+        try {
+            const items = await apiRequest("/lost-items/mine", "GET");
+
+            if (items.length === 0) {
+                listEl.innerHTML = "<p>You haven't reported any lost items yet.</p>";
+                return;
+            }
+
+            listEl.innerHTML = items.map(item => `
+                    <div class="card">
+                        <h3>${item.itemName}</h3>
+                        <p><strong>Category:</strong> ${item.category || "N/A"}</p>
+                        <p><strong>Lost at:</strong> ${item.locationLost || "N/A"}</p>
+                        <p><strong>Date lost:</strong> ${item.dateLost || "N/A"}</p>
+                        <p>${item.description || ""}</p>
+                        <p>Status: <span class="status-${item.status.toLowerCase()}">${item.status}</span></p>
+                        <p style="margin-top: 10px;">
+                            <a href="lost-item-matches.html?id=${item.id}">View possible matches</a>
+                        </p>
+                    </div>
+                `).join("");
+        } catch (err) {
+            listEl.innerHTML = "<p class='error'>Error loading reports: " + err.message + "</p>";
+        }
+    }
+
+    loadMyReports();
+</script>
+</body>
+</html>

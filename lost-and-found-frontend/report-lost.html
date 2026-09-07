@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Report Lost Item - Lost & Found</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="report-lost.html">Report Lost Item</a>
+    <a href="report-found.html">Report Found Item</a>
+    <a href="browse-found.html">Browse Found Items</a>
+    <a href="my-reports.html">My Reports</a>
+    <a href="my-claims.html">My Claims</a>
+    <a href="notifications.html">Notifications</a>
+    <a href="#" onclick="logout()">Logout</a>
+</nav>
+
+<div class="container">
+    <h1>Report a Lost Item</h1>
+
+    <label for="item-name">Item Name</label>
+    <input type="text" id="item-name" placeholder="e.g. Blue Backpack">
+
+    <label for="category">Category</label>
+    <input type="text" id="category" placeholder="e.g. Bag, Electronics, Keys">
+
+    <label for="location-lost">Where was it lost?</label>
+    <input type="text" id="location-lost" placeholder="e.g. Library">
+
+    <label for="date-lost">Date lost</label>
+    <input type="date" id="date-lost">
+
+    <label for="description">Description</label>
+    <textarea id="description" rows="4" placeholder="Any distinguishing details..."></textarea>
+
+    <button onclick="submitLostItem()">Submit Report</button>
+
+    <p id="message"></p>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+    requireLogin();
+
+    async function submitLostItem() {
+        const messageEl = document.getElementById("message");
+        messageEl.textContent = "";
+        messageEl.className = "";
+
+        const payload = {
+            itemName: document.getElementById("item-name").value,
+            category: document.getElementById("category").value,
+            locationLost: document.getElementById("location-lost").value,
+            dateLost: document.getElementById("date-lost").value,
+            description: document.getElementById("description").value
+        };
+
+        try {
+            await apiRequest("/lost-items", "POST", payload);
+            messageEl.textContent = "Lost item reported successfully!";
+            messageEl.className = "success";
+
+            document.getElementById("item-name").value = "";
+            document.getElementById("category").value = "";
+            document.getElementById("location-lost").value = "";
+            document.getElementById("date-lost").value = "";
+            document.getElementById("description").value = "";
+        } catch (err) {
+            messageEl.textContent = "Error: " + err.message;
+            messageEl.className = "error";
+        }
+    }
+</script>
+</body>
+</html>

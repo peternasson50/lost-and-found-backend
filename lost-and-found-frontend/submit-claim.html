@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Submit a Claim - Lost & Found</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="report-lost.html">Report Lost Item</a>
+    <a href="report-found.html">Report Found Item</a>
+    <a href="browse-found.html">Browse Found Items</a>
+    <a href="my-reports.html">My Reports</a>
+    <a href="my-claims.html">My Claims</a>
+    <a href="notifications.html">Notifications</a>
+    <a href="#" onclick="logout()">Logout</a>
+</nav>
+
+<div class="container">
+    <h1>Submit a Claim</h1>
+    <p>Claiming: <strong id="item-name-display"></strong></p>
+
+    <label for="proof-answers">
+        Prove it's yours — describe unique details (serial number, IMEI, scratches, stickers, etc.)
+    </label>
+    <textarea id="proof-answers" rows="4" placeholder="e.g. Serial number is SN-2938471, small tear on the front pocket"></textarea>
+
+    <button onclick="submitClaim()">Submit Claim</button>
+    <p id="message"></p>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+    requireLogin();
+
+    const foundItemId = localStorage.getItem("claimFoundItemId");
+    const itemName = localStorage.getItem("claimItemName");
+
+    if (!foundItemId) {
+        window.location.href = "browse-found.html";
+    }
+
+    document.getElementById("item-name-display").textContent = itemName;
+
+    async function submitClaim() {
+        const messageEl = document.getElementById("message");
+        messageEl.textContent = "";
+
+        const payload = {
+            foundItemId: parseInt(foundItemId),
+            proofAnswers: document.getElementById("proof-answers").value
+        };
+
+        try {
+            await apiRequest("/claims", "POST", payload);
+            messageEl.textContent = "Claim submitted! Track its status in My Claims.";
+            messageEl.className = "success";
+            localStorage.removeItem("claimFoundItemId");
+            localStorage.removeItem("claimItemName");
+
+            setTimeout(() => window.location.href = "my-claims.html", 1500);
+        } catch (err) {
+            messageEl.textContent = "Error: " + err.message;
+            messageEl.className = "error";
+        }
+    }
+</script>
+</body>
+</html>

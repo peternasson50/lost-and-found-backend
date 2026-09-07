@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Lost & Found - Login</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="container">
+    <h1>Lost & Found System</h1>
+
+    <div id="login-section">
+        <h2>Login</h2>
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" placeholder="you@college.edu">
+
+        <label for="login-password">Password</label>
+        <input type="password" id="login-password" placeholder="Your password">
+
+        <button onclick="handleLogin()">Login</button>
+        <p id="login-error" class="error"></p>
+
+        <p style="margin-top: 20px;">
+            Don't have an account?
+            <a href="#" onclick="toggleForms()">Register here</a>
+        </p>
+    </div>
+
+    <div id="register-section" style="display: none;">
+        <h2>Register</h2>
+        <label for="register-name">Full Name</label>
+        <input type="text" id="register-name" placeholder="Jane Student">
+
+        <label for="register-email">Email</label>
+        <input type="email" id="register-email" placeholder="you@college.edu">
+
+        <label for="register-password">Password</label>
+        <input type="password" id="register-password" placeholder="Choose a password">
+
+        <label for="register-studentid">Student ID</label>
+        <input type="text" id="register-studentid" placeholder="ST001">
+
+        <button onclick="handleRegister()">Register</button>
+        <p id="register-error" class="error"></p>
+
+        <p style="margin-top: 20px;">
+            Already have an account?
+            <a href="#" onclick="toggleForms()">Login here</a>
+        </p>
+    </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>

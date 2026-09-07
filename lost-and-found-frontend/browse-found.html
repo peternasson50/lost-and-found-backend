@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Browse Found Items - Lost & Found</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="report-lost.html">Report Lost Item</a>
+    <a href="report-found.html">Report Found Item</a>
+    <a href="browse-found.html">Browse Found Items</a>
+    <a href="my-reports.html">My Reports</a>
+    <a href="my-claims.html">My Claims</a>
+    <a href="notifications.html">Notifications</a>
+    <a href="#" onclick="logout()">Logout</a>
+</nav>
+
+<div class="container">
+    <h1>Found Items</h1>
+    <p style="margin-bottom: 15px; color: #555;">
+        Browse items found around campus. If one of these is yours, submit a claim with details only you would know.
+    </p>
+
+    <div id="items-list">Loading...</div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+    requireLogin();
+
+    async function loadFoundItems() {
+        const listEl = document.getElementById("items-list");
+
+        try {
+            const items = await apiRequest("/found-items", "GET");
+
+            if (items.length === 0) {
+                listEl.innerHTML = "<p>No found items reported yet.</p>";
+                return;
+            }
+
+            listEl.innerHTML = items.map(item => `
+                    <div class="card">
+                        <h3>${item.itemName}</h3>
+                        <p><strong>Category:</strong> ${item.category || "N/A"}</p>
+                        <p><strong>Found at:</strong> ${item.locationFound || "N/A"}</p>
+                        <p><strong>Date found:</strong> ${item.dateFound || "N/A"}</p>
+                        <p>${item.description || ""}</p>
+                        <p><span class="status-available">${item.status}</span></p>
+                        <button onclick="claimItem(${item.id}, '${item.itemName.replace(/'/g, "\\'")}')">This is mine — Submit a Claim</button>
+                    </div>
+                `).join("");
+        } catch (err) {
+            listEl.innerHTML = "<p class='error'>Error loading items: " + err.message + "</p>";
+        }
+    }
+
+    function claimItem(foundItemId, itemName) {
+        // Pass the item id via localStorage so the claim page can pre-fill it
+        localStorage.setItem("claimFoundItemId", foundItemId);
+        localStorage.setItem("claimItemName", itemName);
+        window.location.href = "submit-claim.html";
+    }
+
+    loadFoundItems();
+</script>
+</body>
+</html>

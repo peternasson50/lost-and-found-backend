@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Possible Matches - Lost & Found</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<nav>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="report-lost.html">Report Lost Item</a>
+    <a href="report-found.html">Report Found Item</a>
+    <a href="browse-found.html">Browse Found Items</a>
+    <a href="my-reports.html">My Reports</a>
+    <a href="my-claims.html">My Claims</a>
+    <a href="notifications.html">Notifications</a>
+    <a href="#" onclick="logout()">Logout</a>
+</nav>
+
+<div class="container">
+    <h1>Possible Matches</h1>
+    <p style="margin-bottom: 15px; color: #555;">
+        Found items that might match your lost report, ranked by similarity.
+    </p>
+    <div id="matches-list">Loading...</div>
+</div>
+
+<script src="js/api.js"></script>
+<script>
+    requireLogin();
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const lostItemId = urlParams.get("id");
+
+    if (!lostItemId) {
+        window.location.href = "my-reports.html";
+    }
+
+    async function loadMatches() {
+        const listEl = document.getElementById("matches-list");
+
+        try {
+            const matches = await apiRequest(`/lost-items/${lostItemId}/matches`, "GET");
+
+            if (matches.length === 0) {
+                listEl.innerHTML = "<p>No possible matches found yet. Check back later.</p>";
+                return;
+            }
+
+            listEl.innerHTML = matches.map(m => `
+                    <div class="card">
+                        <h3>${m.foundItemName}</h3>
+                        <p><strong>Category:</strong> ${m.foundCategory || "N/A"}</p>
+                        <p><strong>Found at:</strong> ${m.foundLocation || "N/A"}</p>
+                        <p><strong>Date found:</strong> ${m.foundDate || "N/A"}</p>
+                        <p><strong>Match score:</strong> ${m.matchScore} / 10</p>
+                        <button onclick="claimItem(${m.foundItemId}, '${m.foundItemName.replace(/'/g, "\\'")}')">This is mine — Submit a Claim</button>
+                    </div>
+                `).join("");
+        } catch (err) {
+            listEl.innerHTML = "<p class='error'>Error loading matches: " + err.message + "</p>";
+        }
+    }
+
+    function claimItem(foundItemId, itemName) {
+        localStorage.setItem("claimFoundItemId", foundItemId);
+        localStorage.setItem("claimItemName", itemName);
+        window.location.href = "submit-claim.html";
+    }
+
+    loadMatches();
+</script>
+</body>
+</html>
