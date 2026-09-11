@@ -30,6 +30,15 @@ public class LostItemController {
         return ResponseEntity.ok(items);
     }
 
+    @GetMapping("/admin/all")
+    public ResponseEntity<List<LostItemResponseDTO>> getAllLostItemsForAdmin() {
+        List<LostItemResponseDTO> items = lostItemRepository.findAll()
+                .stream()
+                .map(this::toDTO)
+                .toList();
+        return ResponseEntity.ok(items);
+    }
+
     @PostMapping
     public ResponseEntity<LostItemResponseDTO> reportLostItem(@RequestBody LostItem lostItem, Authentication authentication) {
         User user = getCurrentUser(authentication);
